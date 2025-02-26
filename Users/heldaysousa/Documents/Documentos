@@ -1,0 +1,67 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import mkcert from 'vite-plugin-mkcert'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    react(),
+    nodePolyfills({
+      protocolImports: true,
+    }),
+    mkcert()
+  ],
+
+  // Verifique se AuthProvider está sendo exportado corretamente
+  export const AuthProvider = /* ... */;
+
+  // Se AuthProvider for um componente React, deve ser algo como:
+  // export const AuthProvider: React.FC = ({ children }) => {
+  //   // ... lógica do provedor de autenticação
+  //   return <AuthContext.Provider value={...}>{children}</AuthContext.Provider>;
+  // };
+
+  // Certifique-se de que AuthProvider está sendo exportado
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, './src/components'),
+        '@lib': path.resolve(__dirname, './src/lib'),
+        '@styles': path.resolve(__dirname, './src/styles'),
+        'firebase/app': 'firebase/app/dist/app.js',
+      },
+    },
+    server: {
+      https: true,
+      port: 3000,
+      host: true,
+      strictPort: true,
+      open: true,
+    },
+    preview: {
+      https: true,
+      port: 3001,
+      host: true,
+      strictPort: true,
+      open: true,
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: process.env.NODE_ENV === 'development',
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'firebase-vendor': ['firebase/auth', 'firebase/app'],
+            'ui-vendor': ['@radix-ui/react-icons', '@radix-ui/react-slot', 'framer-motion'],
+          },
+        },
+      },
+    },
+    define: {
+      'process.env': process.env,
+    },
+  })

@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Configurações do Negócio
+model BusinessSettings {
+  id                   String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome                 String
+  cnpj                 String         @unique
+  telefone             String
+  email                String         @unique
+  endereco             String
+  businessType         String?        @map("business_type")
+  logoUrl             String?        @map("logo_url")
+  theme               Json?
+  notificationSettings Json?         @map("notification_settings")
+  paymentSettings     Json?         @map("payment_settings")
+  businessHours       Json?         @map("business_hours")
+  taxSettings         Json?         @map("tax_settings")
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime       @default(now()) @map("updated_at") @db.Timestamptz
+  appointments        Appointment[]
+  clients             Client[]
+  commissions         Commission[]
+  expenses            Expense[]
+  goals               Goal[]
+  integrationLogs     IntegrationLog[]
+  metricsHistory      MetricsHistory[]
+  professionals       Professional[]
+  productSales        ProductSale[]
+  products            Product[]
+  services            Service[]
+  transactions        Transaction[]
+
+  @@map("business_settings")
+}
+
+// Profissionais
+model Professional {
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId      String       @map("business_id") @db.Uuid
+  nome            String
+  email           String
+  telefone        String
+  especialidade   String
+  bio             String?
+  profileImage    String?      @map("profile_image")
+  services        String[]
+  schedule        Json
+  commissionRate  Float        @map("commission_rate")
+  rating          Float?
+  totalReviews    Int          @default(0) @map("total_reviews")
+  skills          String[]
+  certificates    String[]
+  status          String       @default("ativo")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business        BusinessSettings @relation(fields: [businessId], references: [id])
+  appointments    Appointment[]
+  commissions     Commission[]
+
+  @@map("professionals")
+}
+
+// Clientes
+model Client {
+  id                   String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId           String       @map("business_id") @db.Uuid
+  nome                 String
+  email                String
+  telefone             String
+  dataNascimento      DateTime?    @map("data_nascimento") @db.Date
+  profileImage         String?      @map("profile_image")
+  address              Json?
+  preferencias         String[]
+  favoriteServices     String[]     @map("favorite_services")
+  lastVisit           DateTime?     @map("last_visit") @db.Timestamptz
+  totalVisits         Int          @default(0) @map("total_visits")
+  lifetimeValue       Float        @default(0) @map("lifetime_value")
+  referralSource      String?      @map("referral_source")
+  marketingPreferences Json?       @map("marketing_preferences")
+  notas               String?
+  status              String       @default("ativo")
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business            BusinessSettings @relation(fields: [businessId], references: [id])
+  appointments        Appointment[]
+  productSales        ProductSale[]
+
+  @@map("clients")
+}
+
+// Serviços
+model Service {
+  id                String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId        String       @map("business_id") @db.Uuid
+  nome              String
+  descricao         String?
+  valor             Float
+  duracao           Int
+  categoria         String
+  comissao          Float
+  imageUrl          String?      @map("image_url")
+  preparationTime   Int?         @map("preparation_time")
+  cleanupTime       Int?         @map("cleanup_time")
+  materialsCost     Float?       @map("materials_cost")
+  minimumNotice     Int?         @map("minimum_notice")
+  cancellationPolicy String?     @map("cancellation_policy")
+  status            String       @default("ativo")
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business          BusinessSettings @relation(fields: [businessId], references: [id])
+  appointments      Appointment[]
+  commissions       Commission[]
+
+  @@map("services")
+}
+
+// Agendamentos
+model Appointment {
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId      String       @map("business_id") @db.Uuid
+  clientId        String       @map("client_id") @db.Uuid
+  serviceId       String       @map("service_id") @db.Uuid
+  professionalId  String       @map("professional_id") @db.Uuid
+  data            DateTime     @db.Timestamptz
+  valor           Float
+  status          String
+  paymentStatus   String?      @map("payment_status")
+  paymentMethod   String?      @map("payment_method")
+  discountAmount  Float?       @map("discount_amount")
+  taxAmount       Float?       @map("tax_amount")
+  totalAmount     Float?       @map("total_amount")
+  notes           String?
+  rating          Int?
+  review          String?
+  reviewDate      DateTime?    @map("review_date") @db.Timestamptz
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business        BusinessSettings @relation(fields: [businessId], references: [id])
+  client          Client       @relation(fields: [clientId], references: [id])
+  service         Service      @relation(fields: [serviceId], references: [id])
+  professional    Professional @relation(fields: [professionalId], references: [id])
+  commission      Commission?
+  transaction     Transaction?
+
+  @@map("appointments")
+}
+
+// Produtos
+model Product {
+  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId    String       @map("business_id") @db.Uuid
+  name          String
+  description   String?
+  price         Float
+  cost          Float?
+  stock         Int          @default(0)
+  minimumStock  Int          @default(5) @map("minimum_stock")
+  brand         String?
+  supplier      String?
+  category      String?
+  imageUrl      String?      @map("image_url")
+  barcode       String?
+  status        String       @default("active")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business      BusinessSettings @relation(fields: [businessId], references: [id])
+  productSales  ProductSale[]
+
+  @@map("products")
+}
+
+// Vendas de Produtos
+model ProductSale {
+  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId    String       @map("business_id") @db.Uuid
+  productId     String       @map("product_id") @db.Uuid
+  clientId      String       @map("client_id") @db.Uuid
+  quantity      Int
+  unitPrice     Float        @map("unit_price")
+  totalAmount   Float        @map("total_amount")
+  paymentMethod String?      @map("payment_method")
+  paymentStatus String?      @map("payment_status")
+  saleDate      DateTime     @default(now()) @map("sale_date") @db.Timestamptz
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business      BusinessSettings @relation(fields: [businessId], references: [id])
+  product       Product      @relation(fields: [productId], references: [id])
+  client        Client       @relation(fields: [clientId], references: [id])
+
+  @@map("product_sales")
+}
+
+// Comissões
+model Commission {
+  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId    String       @map("business_id") @db.Uuid
+  professionalId String      @map("professional_id") @db.Uuid
+  appointmentId String       @unique @map("appointment_id") @db.Uuid
+  serviceId     String       @map("service_id") @db.Uuid
+  amount        Float
+  percentage    Float
+  status        String       @default("pending")
+  paymentDate   DateTime?    @map("payment_date") @db.Timestamptz
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business      BusinessSettings @relation(fields: [businessId], references: [id])
+  professional  Professional @relation(fields: [professionalId], references: [id])
+  appointment   Appointment  @relation(fields: [appointmentId], references: [id])
+  service       Service      @relation(fields: [serviceId], references: [id])
+
+  @@map("commissions")
+}
+
+// Despesas
+model Expense {
+  id                String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId        String       @map("business_id") @db.Uuid
+  category          String
+  description       String?
+  amount            Float
+  date              DateTime     @db.Timestamptz
+  paymentMethod     String?      @map("payment_method")
+  status            String       @default("pending")
+  recurring         Boolean      @default(false)
+  recurrenceInterval String?     @map("recurrence_interval")
+  nextDueDate       DateTime?    @map("next_due_date") @db.Timestamptz
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business          BusinessSettings @relation(fields: [businessId], references: [id])
+
+  @@map("expenses")
+}
+
+// Metas
+model Goal {
+  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId  String       @map("business_id") @db.Uuid
+  type        String
+  target      Float
+  current     Float        @default(0)
+  startDate   DateTime     @map("start_date") @db.Timestamptz
+  endDate     DateTime     @map("end_date") @db.Timestamptz
+  status      String       @default("active")
+  notes       String?
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business    BusinessSettings @relation(fields: [businessId], references: [id])
+
+  @@map("goals")
+}
+
+// Transações
+model Transaction {
+  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId    String       @map("business_id") @db.Uuid
+  appointmentId String?      @unique @map("appointment_id") @db.Uuid
+  type          String
+  amount        Float
+  paymentMethod String       @map("payment_method")
+  status        String
+  date          DateTime     @db.Timestamptz
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business      BusinessSettings @relation(fields: [businessId], references: [id])
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  @@map("transactions")
+}
+
+// Métricas
+model MetricsHistory {
+  id                  String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId          String       @map("business_id") @db.Uuid
+  date                DateTime     @db.Timestamptz
+  totalAppointments   Int          @map("total_appointments")
+  totalRevenue        Float        @map("total_revenue")
+  averageTicket       Float        @map("average_ticket")
+  conversionRate      Float        @map("conversion_rate")
+  customerSatisfaction Float?       @map("customer_satisfaction")
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  business            BusinessSettings @relation(fields: [businessId], references: [id])
+
+  @@map("metrics_history")
+}
+
+// Logs de Integração
+model IntegrationLog {
+  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  businessId  String       @map("business_id") @db.Uuid
+  integration String
+  event       String
+  status      String
+  details     Json?
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  business    BusinessSettings @relation(fields: [businessId], references: [id])
+
+  @@map("integration_logs")
+}

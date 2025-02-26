@@ -1,0 +1,196 @@
+@layer utilities {
+  .mobile-container {
+    @apply px-4 py-3 w-full max-w-[100vw] overflow-x-hidden;
+  }
+
+  .mobile-card {
+    @apply rounded-xl shadow-sm border-border/50 backdrop-blur-md;
+  }
+
+  .mobile-header {
+    @apply sticky top-0 z-50 backdrop-blur-lg bg-background/80 border-b border-border/50;
+  }
+
+  .mobile-bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-t border-border/50
+           flex items-center justify-around py-2 px-4;
+  }
+
+  .mobile-nav-item {
+    @apply flex flex-col items-center justify-center gap-1 p-2 rounded-lg
+           text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors;
+  }
+
+  .mobile-nav-label {
+    @apply text-xs font-medium;
+  }
+
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  .mobile-form {
+    @apply space-y-4 w-full max-w-md mx-auto;
+  }
+
+  .mobile-input {
+    @apply h-12 px-4 rounded-xl bg-background/50 border-border/50;
+  }
+
+  .mobile-button {
+    @apply h-12 px-6 rounded-xl font-medium transition-all
+           active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .mobile-list {
+    @apply divide-y divide-border/50;
+  }
+
+  .mobile-list-item {
+    @apply p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors;
+  }
+
+  .mobile-modal {
+    @apply fixed inset-0 z-50 bg-background/80 backdrop-blur-sm
+           flex items-end sm:items-center justify-center p-4;
+  }
+
+  .mobile-modal-content {
+    @apply w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-background/95
+           border border-border/50 shadow-xl p-6 animate-slide-up;
+  }
+
+  .mobile-tabs {
+    @apply overflow-x-auto flex gap-2 p-1 -mx-4 px-4;
+  }
+
+  .mobile-tab {
+    @apply px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium
+           bg-transparent hover:bg-primary/10 transition-colors;
+  }
+
+  .mobile-tab[data-state='active'] {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .mobile-calendar {
+    @apply rounded-xl border border-border/50 overflow-hidden;
+  }
+
+  .mobile-calendar-header {
+    @apply flex items-center justify-between p-4 bg-muted/50;
+  }
+
+  .mobile-calendar-grid {
+    @apply grid grid-cols-7 gap-px bg-border/50;
+  }
+
+  .mobile-calendar-day {
+    @apply aspect-square flex items-center justify-center bg-background
+           hover:bg-primary/10 transition-colors relative;
+  }
+
+  .mobile-calendar-day[data-selected] {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .mobile-stats-grid {
+    @apply grid grid-cols-2 gap-4;
+  }
+
+  .mobile-stat-card {
+    @apply p-4 rounded-xl border border-border/50 bg-background/50;
+  }
+
+  .mobile-chart {
+    @apply w-full aspect-[4/3] rounded-xl bg-background/50 p-4;
+  }
+
+  /* Animações Otimizadas */
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  /* Otimizações de Performance */
+  .mobile-optimize {
+    @apply will-change-transform;
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    backface-visibility: hidden;
+    perspective: 1000;
+  }
+
+  /* Gestos Touch */
+  .touch-action-none {
+    touch-action: none;
+  }
+
+  .touch-action-pan-y {
+    touch-action: pan-y;
+  }
+
+  /* Dark Mode Otimizado */
+  .dark .mobile-card {
+    @apply bg-background/40;
+  }
+
+  .dark .mobile-header,
+  .dark .mobile-bottom-nav {
+    @apply bg-background/60;
+  }
+
+  .dark .mobile-input {
+    @apply bg-background/30;
+  }
+
+  /* Responsividade Avançada */
+  @media (max-width: 640px) {
+    .mobile-hide-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .mobile-hide-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .mobile-safe-top {
+      padding-top: env(safe-area-inset-top);
+    }
+  }
+
+  /* Otimizações de Toque */
+  @media (hover: none) {
+    .mobile-tap-highlight-none {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+}
